@@ -1,0 +1,188 @@
+<html><head><base href="https://lovepact.com/"><title>LovePact: Dynamic Relationship Agreements</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f0f0f0;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  h1 {
+    color: #ff69b4;
+    text-align: center;
+  }
+  .input-group {
+    margin-bottom: 15px;
+  }
+  label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  input, select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  button {
+    background-color: #ff69b4;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #ff1493;
+  }
+  #rulesList {
+    margin-top: 20px;
+  }
+  .rule-item {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+  }
+  .rule-title {
+    font-weight: bold;
+    color: #ff69b4;
+  }
+  .rule-category {
+    font-style: italic;
+    color: #888;
+  }
+  .rule-text {
+    margin-top: 5px;
+  }
+  .edit-btn, .delete-btn {
+    margin-top: 5px;
+    margin-right: 5px;
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>LovePact: Dynamic Relationship Agreements</h1>
+  
+  <div class="input-group">
+    <label for="ruleTitle">Rule Title:</label>
+    <input type="text" id="ruleTitle" placeholder="Enter rule title">
+  </div>
+  
+  <div class="input-group">
+    <label for="ruleText">Rule:</label>
+    <input type="text" id="ruleText" placeholder="Enter your rule">
+  </div>
+  
+  <div class="input-group">
+    <label for="ruleCategory">Category:</label>
+    <select id="ruleCategory">
+      <option value="communication">Communication</option>
+      <option value="boundaries">Boundaries</option>
+      <option value="intimacy">Intimacy</option>
+      <option value="finances">Finances</option>
+      <option value="other">Other</option>
+    </select>
+  </div>
+  
+  <button id="addRule">Add Rule</button>
+  
+  <div class="input-group">
+    <label for="sortBy">Sort By:</label>
+    <select id="sortBy">
+      <option value="category">Category</option>
+      <option value="date">Updated Date</option>
+    </select>
+  </div>
+  
+  <div id="rulesList"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
+<script>
+  let rules = [];
+
+  function addRule() {
+    const title = document.getElementById('ruleTitle').value;
+    const text = document.getElementById('ruleText').value;
+    const category = document.getElementById('ruleCategory').value;
+    
+    if (title && text) {
+      const newRule = {
+        id: uuid.v4(),
+        title,
+        text,
+        category,
+        date: new Date()
+      };
+      
+      rules.push(newRule);
+      updateRulesList();
+      clearInputs();
+    }
+  }
+
+  function updateRule(id) {
+    const rule = rules.find(r => r.id === id);
+    if (rule) {
+      rule.title = prompt('Enter new title', rule.title) || rule.title;
+      rule.text = prompt('Enter new rule', rule.text) || rule.text;
+      rule.category = prompt('Enter new category', rule.category) || rule.category;
+      rule.date = new Date();
+      updateRulesList();
+    }
+  }
+
+  function deleteRule(id) {
+    rules = rules.filter(r => r.id !== id);
+    updateRulesList();
+  }
+
+  function clearInputs() {
+    document.getElementById('ruleTitle').value = '';
+    document.getElementById('ruleText').value = '';
+    document.getElementById('ruleCategory').value = 'communication';
+  }
+
+  function updateRulesList() {
+    const sortBy = document.getElementById('sortBy').value;
+    const sortedRules = [...rules].sort((a, b) => {
+      if (sortBy === 'category') {
+        return a.category.localeCompare(b.category);
+      } else {
+        return b.date - a.date;
+      }
+    });
+
+    const rulesList = document.getElementById('rulesList');
+    rulesList.innerHTML = '';
+
+    sortedRules.forEach(rule => {
+      const ruleElement = document.createElement('div');
+      ruleElement.className = 'rule-item';
+      ruleElement.innerHTML = `
+        <div class="rule-title">${rule.title}</div>
+        <div class="rule-category">${rule.category}</div>
+        <div class="rule-text">${rule.text}</div>
+        <button class="edit-btn" onclick="updateRule('${rule.id}')">Edit</button>
+        <button class="delete-btn" onclick="deleteRule('${rule.id}')">Delete</button>
+      `;
+      rulesList.appendChild(ruleElement);
+    });
+  }
+
+  document.getElementById('addRule').addEventListener('click', addRule);
+  document.getElementById('sortBy').addEventListener('change', updateRulesList);
+</script>
+</body></html>
